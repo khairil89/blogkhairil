@@ -8,6 +8,21 @@ use Illuminate\Support\Facades\Http;
 
 class TravelPackageController extends Controller
 {
+    public function index()
+    {
+        $travelPackages = TravelPackage::paginate(10); // Pagination 10 item per halaman
+        return response()->json($travelPackages);
+    }
+    
+    public function show($id)
+    {
+        $travelPackage = TravelPackage::find($id);
+        if (!$travelPackage) {
+            return response()->json(['error' => 'Paket wisata tidak ditemukan'], 404);
+        }
+        return response()->json($travelPackage);
+    }
+    
     public function store(Request $request)
     {
         $request->validate([
@@ -42,4 +57,39 @@ class TravelPackageController extends Controller
     
         return response()->json($travelPackage, 201);
     }
+
+    public function update(Request $request, $id)
+    {
+        $travelPackage = TravelPackage::find($id);
+        if (!$travelPackage) {
+            return response()->json(['error' => 'Paket wisata tidak ditemukan'], 404);
+        }
+
+        $request->validate([
+            'title' => 'sometimes|string',
+            'description' => 'sometimes|string',
+            'price' => 'sometimes|numeric',
+            'location' => 'sometimes|string',
+            'image' => 'sometimes|string|url',
+            'contact_info' => 'sometimes|string',
+            'latitude' => 'sometimes|numeric',
+            'longitude' => 'sometimes|numeric',
+        ]);
+
+        $travelPackage->update($request->all());
+
+        return response()->json($travelPackage, 200);
+    }
+
+    public function destroy($id)
+    {
+        $travelPackage = TravelPackage::find($id);
+        if (!$travelPackage) {
+            return response()->json(['error' => 'Paket wisata tidak ditemukan'], 404);
+        }
+    
+        $travelPackage->delete();
+        return response()->json(['message' => 'Paket wisata berhasil dihapus'], 200);
+    }
+
 }
